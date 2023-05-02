@@ -1,0 +1,38 @@
+version: '3.7'
+
+services:
+  main:
+    container_name: salary_server
+    build:
+      context: .
+      target: BUILD_IMAGE
+    volumes:
+      - .:/salary/app
+      - /salary/app/node_modules
+    ports:
+      - 3000:3000
+    command: npm run start:dev
+    env_file:
+      - .env
+      - docker.env
+    networks:
+      - salary
+    depends_on:
+      - db_pg
+
+  db_pg:
+    image: postgres:12
+    container_name: salary_db
+    ports:
+      - 5433:5432
+    environment:
+      - TZ=${TZ}
+      - PGTZ=${TZ}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    networks:
+      - salary
+
+networks:
+  salary:
+    name: salary-network
